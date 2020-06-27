@@ -198,7 +198,7 @@ while accep: #EDVC Iniciamos el menu
                 if(dura<=30.0): #EDVC si la duracion es menor permitimos que grabe
                     argu='arecord -d ' + str(dura) + ' -f U8 -r 8000 '+ AUDIO
                     os.system(argu)
-                    size = os.path.getsize(direccion+wavy)            
+                    size = str(os.path.getsize(direccion+wavy))            
                     logging.info("\n Este audio es para una sala o alguien? 1=Sala 2=Alguien") #EDVC Una vez grabado el audio le pedimos al usuario que indique a quien es
                     elec=int(input())
                     if(elec==1):
