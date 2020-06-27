@@ -100,6 +100,9 @@ def publishData(topic, value, qos = 0, retain = False):
     client.publish(topic, value, qos, retain)
 
 def comunicacionCS(usuario='',sala='',size=''):
+    logging.info("Si entro")
+    logging.info(sala)
+    logging.info(usuario)
     if(sala!=''):
         while True: 
             publishData(comando+'/'+usu,'\x03$'+sala+'$'+size)
