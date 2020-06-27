@@ -172,7 +172,7 @@ client.connect(host=MQTT_HOST, port = MQTT_PORT) #CFLN Al igual que MQTT_HOST, M
 
 qos = 2
 
-usuario_topics=[(usuarioss+'/'+content[0], qos), qos),(comando,qos),(comando+'/'+usu,qos)]  #EDVC Se inicia con los topics que todos los usuarios tienen en comun
+usuario_topics=[(usuarioss+'/'+content[0], qos),(comando,qos),(comando+'/'+usu,qos)]  #EDVC Se inicia con los topics que todos los usuarios tienen en comun
 
 for i in salas_usuario:#EDVC Dependiendo de las salas que tenga el usuario 
     usuario_topics.append((salasss+'/'+str(i), qos)) #EDVC agregamos estas a su lista de topics
