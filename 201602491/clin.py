@@ -71,6 +71,7 @@ def on_message(client, userdata, msg):
        
     if info[0] == "comandos" and info[1]=="06" and info[2]==usu:
         if(operacion[0]==str(OK) and usu in operacion):
+            logging.info("Entro al if de linea 73")
             oki=True
         elif(operacion[0]==str(FRR)):
           
