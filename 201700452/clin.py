@@ -11,7 +11,7 @@ SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
 FILE_SIZE_E = 0
 
-
+inicio_proceso=False
 oki=False
 conti=True
 espera=True
@@ -47,7 +47,10 @@ logging.basicConfig(
     level = logging.INFO, 
     format = '[%(levelname)s] (%(threadName)-10s) %(message)s'
     )
-
+def mostrar_menu():
+    logging.info("Desea enviar un audio? 1=SI") 
+    logging.info("Desea enviar un mensaje? 2=SI")
+    logging.info("Desea enviar salir? 3=SI")
 
 def on_connect(client, userdata, rc):   #CFLN De esta linea a la 45 declaramos las definiciones basicas para mqtt
     logging.info("Conectado al broker")
@@ -101,6 +104,8 @@ def on_message(client, userdata, msg):
                 logging.info(operacion[1])
                 sock.close() #Se cierra el socket
                 reciv.rep_audio(remit=operacion[1])
+                if not inicio_proceso:
+                    mostrar_menu()
                 #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
@@ -110,6 +115,8 @@ def on_message(client, userdata, msg):
 
     elif info[0] == "usuarios" or info[0] == "salas":
         logging.info(reciv.chat(info[0], info[2] ,msg.payload))              #Llama el metodo para mostrar mensaje
+        if not inicio_proceso:
+            mostrar_menu()
     
 def publishData(topic, value, qos = 0, retain = False):
     client.publish(topic, value, qos, retain)
@@ -203,10 +210,12 @@ client.loop_start()
 while accep: #EDVC Iniciamos el menu
     try:
         while True:
+            inicio_proceso=False
             logging.info("Desea enviar un audio? 1=SI") #EDVC   Mostramos el menu al usuario
             logging.info("Desea enviar un mensaje? 2=SI")
             logging.info("Desea enviar salir? 3=SI")
             respu=int(input())
+            inicio_proceso=True 
             if(respu==1): 
                 if os.path.exists("subprocess1.wav"):
                     os.remove("subprocess1.wav")
