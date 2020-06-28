@@ -94,8 +94,9 @@ def on_message(client, userdata, msg):
                         
             finally:
                 logging.debug("Archivo recibido")
-                reciv.rep_audio(operacion[1])
                 sock.close() #Se cierra el socket
+                reciv.rep_audio(operacion[1])
+                
         elif (operacion[0]==str(NO) and usu in operacion):
             oki=False
         elif (operacion[0]==str(ACK) and usu in operacion):
