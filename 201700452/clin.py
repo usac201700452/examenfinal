@@ -239,7 +239,7 @@ while accep: #EDVC Iniciamos el menu
                     os.system(argu)
                     if CRYPTO_ON:
                         f=open('subprocess1.wav', 'rb')
-                        size = len(encri.encriptar(f))
+                        size = len(encri.encriptar(f.read()))
                         f.close()
                     else: 
                         size = str(os.path.getsize(direccion+wavy))            
