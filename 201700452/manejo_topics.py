@@ -18,7 +18,7 @@ class topic(object):
     def rep_audio(self, remit):        #JMOC Metodo para reproducir mensajes
         logging.info("Entro a rep_audio")
         self.remit = remit
-        logging.info(remit+" envio un audio")
+        logging.info(self.remit+" envio un audio")
         os.system('aplay ' + AUDIO_RECIBIDO) #JMOC Reproducir mensaje
 
     def chat(self, inf_tipo, inf_remit, mensg):   #JMOC Se encarga de la lectura de mensajes
