@@ -91,11 +91,14 @@ def on_message(client, userdata, msg):
                         if not l: 
                             break
                         f.write(l)
+                    f.close()
+                logging.debug("Salio del ciclo")
                         
             finally:
                 logging.debug("Archivo recibido")
                 sock.close() #Se cierra el socket
-                reciv.rep_audio(operacion[1])
+                #reciv.rep_audio(operacion[1])
+                os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
             oki=False
