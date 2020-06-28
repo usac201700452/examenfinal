@@ -3,7 +3,7 @@ import math
 import os
 from Crypto.Cipher import AES
 
-class EncriparMensaje(object):
+class EncriptarMensaje(object):
     
     def __init__(self):
         pass
