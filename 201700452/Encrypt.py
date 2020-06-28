@@ -24,7 +24,9 @@ class EncriptarMensaje(object):
         password = b'contrasenia altamente segura'       
 
         if type(mensaje)!=bytes:
-            cleartext = mensaje.encode()        
+            cleartext = mensaje.encode()
+
+        cleartext = mensaje        
         
         salt = os.urandom(SALT_SIZE)
         derived = hashlib.pbkdf2_hmac('sha256', password, salt, 100000, dklen=IV_SIZE+KEY_SIZE)
