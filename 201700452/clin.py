@@ -86,12 +86,14 @@ def on_message(client, userdata, msg):
             sock.connect((SERVER_ADD, SERVER_PORT))
             try:
                 with open('recibido.wav','wb') as f:
-                    while True:
+                    peso_actual=b'' 
+                    peso=int(operacion[2])
+                    while len(peso_actual)<peso:
                         l = sock.recv(64*1024)
-                        if not l: 
-                            break
-                        f.write(l)
-                    f.close()
+                        peso_actual+=l
+                    f.write(peso_actual)
+                    #f.close()
+                
                 logging.info("Salio del ciclo")
                         
             finally:
