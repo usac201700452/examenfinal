@@ -37,7 +37,7 @@ proc_args = b[:]    #EDVC una copia de b para poder insertar el valor
 emp=''  #CFLN una variable que no tienen texto para eliminar lineas de los archivos de texto
 veces=0
 reciv = topic()    #JMOC Objeto que maneja la recepcion de mensajes
-
+encri = EncriptarMensaje()
 direccion=os.path.abspath(os.getcwd()) #EDVC Aqui obtenemos la direccion de donde se encuentra este archivo py corriendo
 
 with open("usuario") as f:  #CFLN Abrimos el archivo usuario
@@ -118,7 +118,10 @@ def on_message(client, userdata, msg):
             reconocido=True     
 
     elif info[0] == "usuarios" or info[0] == "salas":
-        logging.info(reciv.chat(info[0], info[2] ,msg.payload))              #Llama el metodo para mostrar mensaje
+        if CRYPTO_ON:
+            logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))              #Llama el metodo para mostrar mensaje
+        else:
+            logging.info(reciv.chat(info[0], info[2] ,msg.payload)) 
         if not inicio_proceso:
             mostrar_menu()
     
@@ -259,6 +262,8 @@ while accep: #EDVC Iniciamos el menu
                     carn=int(input())
                     logging.info("Escriba su mensaje: ") #EDVC luego le pedimos que ingrese el mensaje
                     men=str(input())
+                    if CRYPTO_ON:
+                        men=encri.encriptar(men)
                     publishData(usuarioss+'/'+str(carn),men) #EDVC Publicamos en el topic usuarioss(linea 9) + el carnet ingresado
                 elif(res==2):
                     logging.info("Estas son sus salas:") #EDVC Si eligio una sala le pedimos que indique cual es
@@ -268,6 +273,8 @@ while accep: #EDVC Iniciamos el menu
                     if salaa in salas_usuario: #EDVC Si el usuario pertenece a la sala que ingrese permitimos que escriba el mensaje
                         logging.info("Escriba su mensaje: ")
                         men=str(input())
+                        if CRYPTO_ON:
+                            men=encri.encriptar(men)
                         publishData(salasss+'/'+str(salaa),men) #EDVC Hacemos el publish a la sala indicada
                     else:
                         logging.info("Usted no esta suscrito a esta sala!") #EDVC Si no esta suscrito le indicamos al usuario
