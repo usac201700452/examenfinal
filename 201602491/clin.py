@@ -6,6 +6,12 @@ import os
 import socket
 from brokerData import *
 from manejo_topics import *
+import hashlib
+import math
+from Crypto.Cipher import AES
+
+CRYPTO_ON = True        #CFLN Se define si se desea encriptar o no el mensaje/archivo
+
 SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
@@ -15,32 +21,33 @@ FILE_SIZE_E = 0
 oki=False
 conti=True
 espera=True
+
 FRR=b'\x02'
 FTR='\\x03'
 ACK=b'\x05'
 OK=b'\x06'
 NO=b'\x07' 
+
 comand=''
 comando='comandos/06'
 AUDIO="subprocess1.wav"
-usuarioss='usuarios/06'     #CFLN Esta variable se utiliza pasa señalar el topic usuarios
-salasss='salas/06'  #CFLN Esta variable se utiliza pasa señalar el topic de salas
-wavy='/subprocess1.wav'     #CFLN Esta variable se utiliza para señalar el archivo de audio
-#EDVC b es utilizado para enviar un comando arecord por medio de la libreria os
-b = ['arecord', '-d','-f','U8','-r','8000', 'subprocess1.wav']
-insert_at = 2   #EDVC esta variable sirve para insertar en la posicion 4 de la lista b la duracion que tomara arecord
-proc_args = b[:]    #EDVC una copia de b para poder insertar el valor
-emp=''  #CFLN una variable que no tienen texto para eliminar lineas de los archivos de texto
+usuarioss='usuarios/06'             #CFLN Esta variable se utiliza pasa señalar el topic usuarios
+salasss='salas/06'                  #CFLN Esta variable se utiliza pasa señalar el topic de salas
+wavy='/subprocess1.wav'             #CFLN Esta variable se utiliza para señalar el archivo de audio
+b = ['arecord', '-d','-f','U8','-r','8000', 'subprocess1.wav']          #EDVC b es utilizado para enviar un comando arecord por medio de la libreria os
+insert_at = 2           #EDVC esta variable sirve para insertar en la posicion 4 de la lista b la duracion que tomara arecord
+proc_args = b[:]        #EDVC una copia de b para poder insertar el valor
+emp=''                  #CFLN una variable que no tienen texto para eliminar lineas de los archivos de texto
 veces=0
-reciv = topic()    #JMOC Objeto que maneja la recepcion de mensajes
+reciv = topic()         #JMOC Objeto que maneja la recepcion de mensajes
 
-direccion=os.path.abspath(os.getcwd()) #EDVC Aqui obtenemos la direccion de donde se encuentra este archivo py corriendo
+direccion=os.path.abspath(os.getcwd())  #EDVC Aqui obtenemos la direccion de donde se encuentra este archivo py corriendo
 
-with open("usuario") as f:  #CFLN Abrimos el archivo usuario
+with open("usuario") as f:      #CFLN Abrimos el archivo usuario
     content = f.readlines()     #CFLN obtenemos su contenido
 content = [x.strip() for x in content]      #CFLN eliminamos los espacios vacios
 
-usu=str(content[0]) #CFLN como content es una lista, declaramos una variable usu que sera usada a lo largo del programa
+usu=str(content[0])             #CFLN como content es una lista, declaramos una variable usu que sera usada a lo largo del programa
 
 
 logging.basicConfig(
@@ -48,16 +55,16 @@ logging.basicConfig(
     format = '[%(levelname)s] (%(threadName)-10s) %(message)s'
     )
 
-
-def on_connect(client, userdata, rc):   #CFLN De esta linea a la 45 declaramos las definiciones basicas para mqtt
+#CFLN Funcion basica que se ejecuta al iniciar la conexion
+def on_connect(client, userdata, rc):   
     logging.info("Conectado al broker")
 
-
+#CFLN Funcion basica que se ejecuta al publicar en un topic
 def on_publish(client, userdata, mid): 
     publishText = "Publicacion satisfactoria"
     logging.debug(publishText)
 
-
+#CFLN Funcion basica que se ejecuta al recibir un mensaje
 def on_message(client, userdata, msg):
     global comand
     global oki
@@ -109,7 +116,7 @@ def on_message(client, userdata, msg):
             reconocido=True     
 
     elif info[0] == "usuarios" or info[0] == "salas":
-        logging.info(reciv.chat(info[0], info[2] ,msg.payload))              #Llama el metodo para mostrar mensaje
+        logging.info(reciv.chat(info[0], info[2] ,msg.payload)) #CFLN Llama el metodo para mostrar mensaje
     
 def publishData(topic, value, qos = 0, retain = False):
     client.publish(topic, value, qos, retain)
@@ -190,7 +197,7 @@ client.username_pw_set(MQTT_USER, MQTT_PASS) #CFLN MQTT_USER, MQTT_PASS sale del
 client.connect(host=MQTT_HOST, port = MQTT_PORT) #CFLN Al igual que MQTT_HOST, MQTT_PORT
 
 
-qos = 2
+qos = 2         #CFLN Calidad de servicio a utilizar
 
 usuario_topics=[(usuarioss+'/'+content[0], qos),(comando,qos),(comando+'/'+usu,qos)]  #EDVC Se inicia con los topics que todos los usuarios tienen en comun
 
