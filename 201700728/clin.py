@@ -235,12 +235,6 @@ def alive():
                  sys.exit()
                 
                
-publishData(comando,'\x04$'+usu)
-
-alive_threadd = threading.Thread(target=alive, daemon=True)
-alive_threadd.start()
-
-print("Bienvenido! " + str(content[0]))     #CFLN Damos la bienvenida al usuario
 
 accep=True #CFLN dejamos que accep sea verdadero si content encontro al usuario y asi poder correr la aplicación
 
@@ -269,6 +263,17 @@ for i in salas_usuario:#EDVC Dependiendo de las salas que tenga el usuario
 client.subscribe(usuario_topics) #EDVC Se suscribe a los topics del usuario
 
 client.loop_start()
+
+
+publishData(comando,'\x04$'+usu)
+
+alive_threadd = threading.Thread(target=alive, daemon=True)
+alive_threadd.start()
+
+print("Bienvenido! " + str(content[0]))     #CFLN Damos la bienvenida al usuario
+
+
+
 while accep: #EDVC Iniciamos el menu
     try:
         while True:
