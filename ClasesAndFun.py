@@ -11,7 +11,7 @@ class usuario(object):
         return self.user
 
     def getusername(self):  #JMOC Devuelve el nombre de usuario
-        return self.username
+        return self.user_name
 
     def getrooms(self):        #JMOC Devuelve las salas a las que pertenece el usuario 
         return self.rooms

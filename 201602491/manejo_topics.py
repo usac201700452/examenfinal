@@ -14,9 +14,6 @@ logging.basicConfig(
 class topic(object):
     def __init__(self):
         pass
-
-    
-
  
     def rep_audio(self, remit):        #JMOC Metodo para reproducir mensajes
         logging.info("Entro a rep_audio")
