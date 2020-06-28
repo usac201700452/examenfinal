@@ -14,7 +14,7 @@ SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
 FILE_SIZE_E = 0
-
+wavy_encrip='/encripe'
 inicio_proceso=False
 oki=False
 conti=True
@@ -146,13 +146,16 @@ def comunicacionCS(usuario='',sala='',size=''):
                 sock.connect((SERVER_ADD, SERVER_PORT))
                 #print("\nEsperando conexion remota...\n")
                 #conn, addr = sock.accept()
-                with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    if CRYPTO_ON:      
-                        sock.sendfile(encri.encriptar(f.read()), 0)
-                    else:
+                if CRYPTO_ON:
+                    with open('encripe', 'rb') as f: #Se abre el archivo a enviar en BINARIO
                         sock.sendfile(f, 0)
                     f.close()
-                sock.close()
+                    sock.close()
+                else:
+                    with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
+                    f.close()
+                    sock.close()
                 break
             else:
                 logging.info("El servidor envio un NO, no se enviara el archivo")
@@ -166,15 +169,16 @@ def comunicacionCS(usuario='',sala='',size=''):
                 
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((SERVER_ADD, SERVER_PORT))
-               
-                
-                with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    if CRYPTO_ON:      
-                        sock.sendfile(encri.encriptar(f.read()), 0)
-                    else:
+                if CRYPTO_ON:
+                    with open('encripe', 'rb') as f: #Se abre el archivo a enviar en BINARIO
                         sock.sendfile(f, 0)
                     f.close()
-                sock.close()
+                    sock.close()
+                else:
+                    with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
+                    f.close()
+                    sock.close()
                 break
             else:
                 logging.info("El servidor envio un NO, no se enviara el archivo")
@@ -241,9 +245,12 @@ while accep: #EDVC Iniciamos el menu
                     argu='arecord -d ' + str(dura) + ' -f U8 -r 8000 '+ AUDIO
                     os.system(argu)
                     if CRYPTO_ON:
+                        t=open('encripe', 'wb')
                         f=open('subprocess1.wav', 'rb')
-                        size = len(encri.encriptar(f.read()))
+                        t.write(encri.encriptar(f.read()))
                         f.close()
+                        t.close()
+                        size = str(os.path.getsize(direccion+wavy_encrip)) 
                     else: 
                         size = str(os.path.getsize(direccion+wavy))            
                     logging.info("\n Este audio es para una sala o alguien? 1=Sala 2=Alguien") #EDVC Una vez grabado el audio le pedimos al usuario que indique a quien es
