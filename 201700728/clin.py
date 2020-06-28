@@ -3,6 +3,7 @@ import logging
 import time
 import threading
 import os
+import socket
 from brokerData import *
 from manejo_topics import *
 SERVER_ADD = '167.71.243.238'
@@ -60,8 +61,10 @@ def on_publish(client, userdata, mid):
 def on_message(client, userdata, msg):
     global comand
     global oki
-    comand=msg.payload.decode()
-    operacion=str(comand).split('$')
+    #comand=msg.payload.decode()
+    operacion=str(msg.payload).split('$')
+    operacion[0]+="'"
+    operacion[-1]=operacion[-1].replace("'",'')
     logging.info("Valor de operacion: ")
     logging.info(operacion)
     info = msg.topic.split('/')   #JMOC obtiene la informacion del topic
@@ -70,6 +73,10 @@ def on_message(client, userdata, msg):
     #JMOC info[2] =  indica el nombre del sub topic (sala/usuario)
        
     if info[0] == "comandos" and info[1]=="06" and info[2]==usu:
+        logging.info("**************")
+        print(operacion)
+        print(str(OK))
+        logging.info("**************")
         if(operacion[0]==str(OK) and usu in operacion):
             logging.info("Entro al if de linea 73")
             oki=True
@@ -84,7 +91,7 @@ def on_message(client, userdata, msg):
                         if not l: 
                             break
                         f.write(l)
-                        breaK
+                        break
             finally:
                 logging.debug("Archivo recibido")
                 reciv.rep_audio(operacion[1])
@@ -109,7 +116,7 @@ def comunicacionCS(usuario='',sala='',size=''):
             publishData(comando+'/'+usu,'\x03$'+sala+'$'+size)
             time.sleep(1)
             if oki:
-                logging.info("El servidor envio un OK enviando audio")
+                logging.info("El servidor envio un OK enviando audio (sala)")
                 
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((SERVER_ADD, SERVER_PORT))
@@ -119,6 +126,7 @@ def comunicacionCS(usuario='',sala='',size=''):
                     sock.sendfile(f, 0)
                     f.close()
                 sock.close()
+                break
             else:
                 logging.info("El servidor envio un NO, no se enviara el archivo")
                 break
@@ -127,7 +135,7 @@ def comunicacionCS(usuario='',sala='',size=''):
             publishData(comando+'/'+usu,'\x03$'+usuario+'$'+size)
             time.sleep(1)
             if oki:
-                logging.info("El servidor envio un OK enviando audio")
+                logging.info("El servidor envio un OK enviando audio(usuario)")
                 
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((SERVER_ADD, SERVER_PORT))
@@ -137,6 +145,7 @@ def comunicacionCS(usuario='',sala='',size=''):
                     sock.sendfile(f, 0)
                     f.close()
                 sock.close()
+                break
             else:
                 logging.info("El servidor envio un NO, no se enviara el archivo")
                 break
