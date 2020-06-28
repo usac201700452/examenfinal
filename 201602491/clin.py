@@ -232,7 +232,7 @@ def alive():
                 tiempo=tiempo+1
             if tiempo==200:
                  logging.critical("El servidor no contesto, saliendo")
-                 sys.exit()
+                 os.system('exit')
                 
                
 
