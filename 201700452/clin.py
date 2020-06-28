@@ -103,7 +103,7 @@ def on_message(client, userdata, msg):
                     else:
                         f.write(peso_actual)
                 f.close() #NOTA
-                
+                 
                 logging.info("Salio del ciclo")
                         
             finally:
