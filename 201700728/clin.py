@@ -6,6 +6,10 @@ import os
 import socket
 from brokerData import *
 from manejo_topics import *
+from Encrypt import *
+
+CRYPTO_ON = True
+
 SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
