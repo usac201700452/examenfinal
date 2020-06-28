@@ -148,7 +148,7 @@ def comunicacionCS(usuario='',sala='',size=''):
                 #conn, addr = sock.accept()
                 with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
                     if CRYPTO_ON:      
-                        sock.sendfile(encri.encriptar(f), 0)
+                        sock.sendfile(encri.encriptar(f.read()), 0)
                     else:
                         sock.sendfile(f, 0)
                     f.close()
@@ -169,7 +169,10 @@ def comunicacionCS(usuario='',sala='',size=''):
                
                 
                 with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    sock.sendfile(f, 0)
+                    if CRYPTO_ON:      
+                        sock.sendfile(encri.encriptar(f.read()), 0)
+                    else:
+                        sock.sendfile(f, 0)
                     f.close()
                 sock.close()
                 break
@@ -239,7 +242,7 @@ while accep: #EDVC Iniciamos el menu
                     os.system(argu)
                     if CRYPTO_ON:
                         f=open('subprocess1.wav', 'rb')
-                        size = len(encri.encriptar(f))
+                        size = len(encri.encriptar(f.read()))
                         f.close()
                     else: 
                         size = str(os.path.getsize(direccion+wavy))            
