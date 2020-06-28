@@ -9,16 +9,6 @@ from globals import * #CFLN Variables globales del programa
 from TCPserver import * #CFLN Importa la configuracion y la clase del servidor TCP 
 import threading #CFLN Para uso de hilos
 
-"""
-SERVER_ADD = 'localhost'
-SERVER_PORT = 9806
-
-BUFFER_SIZE = 64 * 1024
-FILE_SIZE_E = 0
-sock = socket.socket()
-sock.connect((SERVER_ADD, SERVER_PORT   ))
-"""
-
 #JMOC Configuracion inicial de logging
 logging.basicConfig(
     level = logging.DEBUG, 
@@ -185,7 +175,7 @@ def dist_salas(trama, info_remit, topic):    #JMOC funcion que se encarga de dis
             if j == trama[1]:
                 #JMOC Se hace una solicitud FRR al usuario de la sala    
                 publishData(COMANDOS+"/"+i.getuser(), FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
-                TCP.transf()  #Inicia la transferencia del archivo 
+                TCP.transf(i.getuser())  #Inicia la transferencia del archivo 
 
 #JMOC definicion para distribucion de mensajes a multiples ususarios
 def dist_usus(mult_usua, trama ,info_remit, topic):    #JMOC funcion que se encarga de distribuir los mensajes a las salas
@@ -196,7 +186,7 @@ def dist_usus(mult_usua, trama ,info_remit, topic):    #JMOC funcion que se enca
         if online(i):
             #JMOC se le envia una solicitud de tranferencia a los destinatarios
             publishData(COMANDOS+"/"+i, FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())  
-            TCP.transf()  #Inicia la transferencia del archivo   
+            TCP.transf(i)  #Inicia la transferencia del archivo   
 
 #JMOC definicion para distribucion de mensaje a un ususario
 def dist_usu(trama ,info_remit, topic):    #JMOC funcion que se encarga de distribuir los mensajes a las salas
@@ -205,7 +195,7 @@ def dist_usu(trama ,info_remit, topic):    #JMOC funcion que se encarga de distr
     
     #JMOC Se hace una solicitud FRR al usuario receptor  
     publishData(COMANDOS+"/"+trama[1], FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
-    TCP.transf()  #Inicia la transferencia del archivo       
+    TCP.transf(trama[1])  #Inicia la transferencia del archivo       
 
 #CFLN Metodo que se encarga de limpiar la lista de clientes
 # que no estan enviando su comando ALIVE
@@ -223,26 +213,6 @@ def isAlive():
 #CFLN Hilo para correr el metodo isAlive sin afectar el hilo principal        
 hiloAlive = threading.Thread(target=isAlive, daemon = True)
 hiloAlive.start()
-
-"""
-try:
-    with open('recibido.wav','wb') as f:
-        while True:
-            l = sock.recv(64*1024)
-            if not l: 
-                break
-            f.write(l)
-            break
-   
-    print("\nEsperando conexion remota...\n")
-    with open('recibido.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-        sock.sendfile(f, 0)
-        f.close()          
-    
-finally:
-    logging.debug("Archivo recibido")
-    sock.close() #Se cierra el socket
-"""
 
 try:
     while True:

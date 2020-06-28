@@ -28,16 +28,23 @@ class tcp_server(object):
                 peso_actual+=l                    #Guarda en una variable los datos del buffer   
             f.write(peso_actual)                  #Escribe en el buffer los datos recividos
             f.close()
+            logging.info("Archivo recibido con exito")
+        except:
+            logging.info("No se pudo recibir archivo")
         finally:
             conn.close() #Se cierra el socket    
 
-    def transf(self):     #transferencia de archivo
+    def transf(self, dest):     #transferencia de archivo
+        self.dest = dest
         try:
             logging.debug("Esperando Conexion remota para iniciar la transmision")
             conn, addr = server_socket.accept()
             with open(AUDIO_FILE, 'rb') as f: #Se abre el archivo a enviar en BINARIO
                 conn.sendfile(f, 0)
                 f.close()
+            logging.info("Archivo enviado a " + self.dest)
+        except:
+            logging.info("No se puedo enviar el archivo a " + self.dest)
         finally:
             #logging.debug("cerrando coneccion")
             conn.close() #Se cierra el socket
