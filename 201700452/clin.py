@@ -98,8 +98,11 @@ def on_message(client, userdata, msg):
                     while len(peso_actual)<peso:
                         l = sock.recv(64*1024)
                         peso_actual+=l
-                    f.write(peso_actual)
-                    #f.close()
+                    if CRYPTO_ON:
+                        f.write(encri.desencriptar(peso_actual))
+                    else:
+                        f.write(peso_actual)
+                f.close() #NOTA
                 
                 logging.info("Salio del ciclo")
                         
@@ -119,7 +122,7 @@ def on_message(client, userdata, msg):
 
     elif info[0] == "usuarios" or info[0] == "salas":
         if CRYPTO_ON:
-            logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))              #Llama el metodo para mostrar mensaje
+            logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))        #Llama el metodo para mostrar mensaje
         else:
             logging.info(reciv.chat(info[0], info[2] ,msg.payload)) 
         if not inicio_proceso:
@@ -144,7 +147,10 @@ def comunicacionCS(usuario='',sala='',size=''):
                 #print("\nEsperando conexion remota...\n")
                 #conn, addr = sock.accept()
                 with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    sock.sendfile(f, 0)
+                    if CRYPTO_ON:      
+                        sock.sendfile(encri.encriptar(f), 0)
+                    else:
+                        sock.sendfile(f, 0)
                     f.close()
                 sock.close()
                 break
@@ -231,7 +237,12 @@ while accep: #EDVC Iniciamos el menu
                 if(dura<=30.0): #EDVC si la duracion es menor permitimos que grabe
                     argu='arecord -d ' + str(dura) + ' -f U8 -r 8000 '+ AUDIO
                     os.system(argu)
-                    size = str(os.path.getsize(direccion+wavy))            
+                    if CRYPTO_ON:
+                        f=open('subprocess1.wav', 'rb')
+                        size = len(encri.encriptar(f))
+                        f.close()
+                    else: 
+                        size = str(os.path.getsize(direccion+wavy))            
                     logging.info("\n Este audio es para una sala o alguien? 1=Sala 2=Alguien") #EDVC Una vez grabado el audio le pedimos al usuario que indique a quien es
                     elec=int(input())
                     if(elec==1):
