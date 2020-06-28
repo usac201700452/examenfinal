@@ -14,6 +14,9 @@ SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
 FILE_SIZE_E = 0
+
+reconocido_alive=False
+reconocido_audio=False
 wavy_encrip='/encripe'
 inicio_proceso=False
 oki=False
@@ -59,7 +62,6 @@ def mostrar_menu():
 def on_connect(client, userdata, rc):   #CFLN De esta linea a la 45 declaramos las definiciones basicas para mqtt
     logging.info("Conectado al broker")
 
-
 def on_publish(client, userdata, mid): 
     publishText = "Publicacion satisfactoria"
     logging.debug(publishText)
@@ -68,6 +70,8 @@ def on_publish(client, userdata, mid):
 def on_message(client, userdata, msg):
     global comand
     global oki
+    global reconocido_alive
+    global reconocido_audio
     #comand=msg.payload.decode()
     operacion=str(msg.payload).split('$')
     operacion[0]+="'"
@@ -92,7 +96,8 @@ def on_message(client, userdata, msg):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((SERVER_ADD, SERVER_PORT))
             try:
-                with open('recibido.wav','wb') as f:
+               
+                with open(str(time.time()),'wb') as f:
                     peso_actual=b'' 
                     peso=int(operacion[2])
                     while len(peso_actual)<peso:
@@ -113,12 +118,18 @@ def on_message(client, userdata, msg):
                 reciv.rep_audio(remit=operacion[1])
                 if not inicio_proceso:
                     mostrar_menu()
+                
                 #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
             oki=False
         elif (operacion[0]==str(ACK) and usu in operacion):
-            reconocido=True     
+            reconocido_audio=True
+            logging.info("El audio se envio")
+    elif info[0] == "comandos" and info[1]=="06" and len(info)==2:
+        if (operacion[0]==str(ACK) and usu in operacion):
+            reconocido_alive=True
+              
 
     elif info[0] == "usuarios" or info[0] == "salas":
         if CRYPTO_ON:
@@ -158,7 +169,7 @@ def comunicacionCS(usuario='',sala='',size=''):
                     sock.close()
                 break
             else:
-                logging.info("El servidor envio un NO, no se enviara el archivo")
+                logging.error("El servidor envio un NO, no se enviara el archivo")
                 break
     if(usuario!=''):
         while True:
@@ -185,19 +196,50 @@ def comunicacionCS(usuario='',sala='',size=''):
                 break
 
 
-'''
+
 def alive():
+    cont=0
+    tiempo=0
     while(True):
+        global reconocido_alive
         publishData(comando,'\x04$'+usu)
-        if reconocido:
-           time.sleep(2)
-        else
-            time.sleep(0.2)
+        time.sleep(2)
+        if reconocido_alive and cont <=3:
+           reconocido_alive=False  
+           cont=0
+        else:
+            cont=cont+1
+            '''
+            while tres_intentos<=3 and not reconocido_alive:
+                publishData(comando,'\x04$'+usu)
+                time.sleep(2)
+                tres_intentos+=tres_intentos+1
+            hilo_tiempo.start()
+            if tres_intentos>3:
+                publishData(comando,'\x04$'+usu)
+                time.sleep(0.1)
+                if paso_veint:
+                    logging.info("El servidor no contesto, saliendo") '''
+        while cont>3:
+            logging.info("El servidor no contesto, enviando cada 0.1")
+            publishData(comando,'\x04$'+usu)
+            time.sleep(0.1)
+            if reconocido_alive:
+                cont=0
+                tiempo=0
+                break
+            else:
+                tiempo=tiempo+1
+            if tiempo==200:
+                 logging.critical("El servidor no contesto, saliendo")
+                 sys.exit()
+                
+               
 publishData(comando,'\x04$'+usu)
 
 alive_threadd = threading.Thread(target=alive, daemon=True)
 alive_threadd.start()
-'''
+
 print("Bienvenido! " + str(content[0]))     #CFLN Damos la bienvenida al usuario
 
 accep=True #CFLN dejamos que accep sea verdadero si content encontro al usuario y asi poder correr la aplicación
