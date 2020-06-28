@@ -91,7 +91,7 @@ def on_message(client, userdata, msg):
                         if not l: 
                             break
                         f.write(l)
-                        break
+                        
             finally:
                 logging.debug("Archivo recibido")
                 reciv.rep_audio(operacion[1])
