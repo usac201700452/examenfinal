@@ -97,8 +97,8 @@ def on_message(client, userdata, msg):
             finally:
                 logging.info("Archivo recibido")
                 sock.close() #Se cierra el socket
-                #reciv.rep_audio(operacion[1])
-                os.system('aplay recibido.wav') #JMOC Reproducir mensaje
+                reciv.rep_audio(operacion[1])
+                #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
             oki=False
