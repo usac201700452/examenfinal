@@ -8,7 +8,7 @@ from brokerData import *
 from manejo_topics import *
 from Encrypt import *
 
-CRYPTO_ON = True
+CRYPTO_ON = False
 
 SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
