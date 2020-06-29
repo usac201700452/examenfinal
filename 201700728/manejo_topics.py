@@ -31,6 +31,7 @@ class topic(object):
                         args = (self.nom),
                         daemon = True
                         )
+        logging.info(self.nom)
         audio.start()     #JMOC hilo para reproducir audio
 
 
