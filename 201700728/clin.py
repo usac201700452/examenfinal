@@ -76,14 +76,19 @@ def on_message(client, userdata, msg):
     operacion=str(msg.payload).split('$')
     operacion[0]+="'"
     operacion[-1]=operacion[-1].replace("'",'')
-    logging.info("Valor de operacion: ")
-    logging.info(operacion)
+    #logging.info("Valor de operacion: ")
+    #logging.info(operacion)
     info = msg.topic.split('/')   #JMOC obtiene la informacion del topic
+    
     #JMOC info[0] = indica si es un audio o un text
     #JMOC info[1] =  indica el subtopic del numero de grupo
     #JMOC info[2] =  indica el nombre del sub topic (sala/usuario)
-       
-    if info[0] == "comandos" and info[1]=="06" and info[2]==usu:
+    #if len(msg.topic)==11:
+    if info[0] == "comandos" and info[1]=="06" and len(info)==2:
+        if (operacion[0]==str(ACK) and usu in operacion):
+            reconocido_alive=True  
+    elif info[0] == "comandos" and info[1]=="06" and info[2]==usu:
+        
         logging.info("**************")
         print(operacion)
         print(str(OK))
@@ -117,8 +122,7 @@ def on_message(client, userdata, msg):
                 sock.close() #Se cierra el socket
                 reciv.rep_audio(remit=operacion[1])
                 if not inicio_proceso:
-                    mostrar_menu()
-                
+                    mostrar_menu()   
                 #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
@@ -126,11 +130,7 @@ def on_message(client, userdata, msg):
         elif (operacion[0]==str(ACK) and usu in operacion):
             reconocido_audio=True
             logging.info("El audio se envio")
-    elif info[0] == "comandos" and info[1]=="06" and len(info)==2:
-        if (operacion[0]==str(ACK) and usu in operacion):
-            reconocido_alive=True
-              
-
+        
     elif info[0] == "usuarios" or info[0] == "salas":
         if CRYPTO_ON:
             logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))        #Llama el metodo para mostrar mensaje
@@ -146,7 +146,7 @@ def comunicacionCS(usuario='',sala='',size=''):
     logging.info("Si entro")
     logging.info(sala)
     logging.info(usuario)
-    if(sala!=''):
+    if(sala!=''): 
         while True: 
             publishData(comando+'/'+usu,'\x03$'+sala+'$'+size)
             time.sleep(1)
@@ -201,7 +201,10 @@ def alive():
     cont=0
     tiempo=0
     while(True):
+        #logging.info("cada 2 seg")
+        #logging.info(cont)
         global reconocido_alive
+
         publishData(comando,'\x04$'+usu)
         time.sleep(2)
         if reconocido_alive and cont <=3:
@@ -209,30 +212,21 @@ def alive():
            cont=0
         else:
             cont=cont+1
-            '''
-            while tres_intentos<=3 and not reconocido_alive:
-                publishData(comando,'\x04$'+usu)
-                time.sleep(2)
-                tres_intentos+=tres_intentos+1
-            hilo_tiempo.start()
-            if tres_intentos>3:
-                publishData(comando,'\x04$'+usu)
-                time.sleep(0.1)
-                if paso_veint:
-                    logging.info("El servidor no contesto, saliendo") '''
         while cont>3:
             logging.info("El servidor no contesto, enviando cada 0.1")
+            logging.info(tiempo)
             publishData(comando,'\x04$'+usu)
             time.sleep(0.1)
             if reconocido_alive:
                 cont=0
                 tiempo=0
                 break
+            elif tiempo==200:
+                 logging.critical("El servidor no contesto, saliendo")
+                 os._exit(0)
             else:
                 tiempo=tiempo+1
-            if tiempo==200:
-                 logging.critical("El servidor no contesto, saliendo")
-                 os.system('exit')
+            
                 
                
 

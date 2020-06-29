@@ -146,7 +146,7 @@ def comunicacionCS(usuario='',sala='',size=''):
     logging.info("Si entro")
     logging.info(sala)
     logging.info(usuario)
-    if(sala!=''):
+    if(sala!=''): 
         while True: 
             publishData(comando+'/'+usu,'\x03$'+sala+'$'+size)
             time.sleep(1)
