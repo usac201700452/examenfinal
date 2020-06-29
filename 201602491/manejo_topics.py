@@ -11,18 +11,16 @@ logging.basicConfig(
 
 #JMOC Esta función será lanzada en un hilo para repodrucir el audio
 def reproducir(nome):
-    os.system('aplay ' + str(nome) + '.wav') #JMOC Reproducir mensaje
+    os.system('aplay ' + nome + '.wav') #JMOC Reproducir mensaje
 
 class topic(object):
     def __init__(self):
         pass
 
-    
-
     def rep_audio(self, remit, nomr):        #JMOC Metodo para reproducir mensajes
         self.remit = remit
         logging.info(self.remit+" envio un audio")
-        self.nomr=norm
+        self.nomr=nomr
         audio = None                       #JMOC Elimina el hilo anterior
 
         audio = threading.Thread(name = 'audio',       #JMOC Configuracion del hilo
