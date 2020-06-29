@@ -1,0 +1,13 @@
+Para iniciar el servidor se debe ejecutar el archivo server.py
+
+Los siguientes archivos conienen scripts auxiliares para el server
+	brokerData.py
+	ClasesAndFun.py
+	globals.py
+	TCPserver.py
+	TCPServerData.py
+	
+Los clientes se encuentran en las carpetas 201602491, 201700452, 201700728
+
+Para iniciar el cliente se debe ejecutar el archivo clin.py que se encuentra en cada carpeta 
+
