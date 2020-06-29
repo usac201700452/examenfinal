@@ -56,12 +56,17 @@ def usuarios_validos(user_origen,mul_usu,ava_usuarios):
     return valid_user
 
 #JMOC Verifica si la sala esta vacia
-def sala_vacia(nosala,user_origen,salas_usus):
+#CFLN nosala = sala por la cual se desea consultar
+#CFLN user_origen = usuario que esta haceindo la peticion a la sala
+#CFLN salas_usus = lista que contiene objetos del tipo usuario (contiene informacion de las salas a las que pertenece cada usuario)
+#CFLN lista_online = lista de usuarios conectados
+def sala_vacia(nosala,user_origen,salas_usus, lista_online):
     sa_state = False
     for i in salas_usus:
         for j in i.getrooms():
             if (i.getuser() != user_origen) and j == nosala:     
-                sa_state = True                                      #preguntar si esta en linea
+                if online(usu_on, lista_online):
+                    sa_state = True                                      #preguntar si esta en linea
     return  sa_state
 
 #JMOC Verifica si el remitente de un mensaje es valido
@@ -72,11 +77,12 @@ def remite_valido(remit, valid_remit):
             state = True                
     return state
 
-#JMOC Verifica si un usuario esta en linea
-def online(usu_on):
-    li=True
-    print(ClientesOnline)
-    #for i in usus_on:
-        #if usu_on == i[0]
-        #li=True
+#CFLN Verifica si un usuario esta en linea
+def online(usu_on, lista_online):
+    #CFLN usu_on = usuario que se desea saber si esta en linea
+    #CFLN lista_online = lista de usuarios que estan en linea
+    li=False
+    for i in lista_online:
+        if usu_on in i[0]:
+            li=True
     return li

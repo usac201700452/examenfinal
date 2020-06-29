@@ -18,8 +18,6 @@ logging.basicConfig(
 TCP = tcp_server()           #JMOC Crea un objeto para el manejo de la recepcion y transmision de archivos de audio
 
 ClientesOnline = []            #CFLN Lista de todos los clientes que envian msg
-listaClientes2 = []         #CFLN Lista de clientes activos no repetidos     
-contAlives = 0
 
 #JMOC Callback que se ejecuta cuando nos conectamos al broker
 def on_connect(client, userdata, rc):
@@ -50,7 +48,7 @@ def on_message(client, userdata, msg):
         if len(trama[1]) == 5 and remite_valido(info_remit[2],usuarios):
             logging.info(info_remit[2] + " solicita transferencia a una sala " + trama[1])         
             #JMOC pregunta si la sala es valida (si se encuentra en el archivo salas) y si esta vacia    
-            if sala_valida(trama[1]) and sala_vacia(trama[1],info_remit[2],usuarios):        
+            if sala_valida(trama[1]) and sala_vacia(trama[1],info_remit[2],usuarios, ClientesOnline):        
                 publishData(msg.topic, OK + b'$' + info_remit[2].encode())    #JMOC Se le notifica al cliente que los destinatarios son validos
                 logging.debug("Sala valida")            #INICIA LA RECEPCION
                 #JMOC Distribucion de mensaje utilizando un hilo
@@ -69,7 +67,7 @@ def on_message(client, userdata, msg):
         if (len(trama[1]) == 9) and (remite_valido(info_remit[2],usuarios)) and (mult_usua == []) :  
             logging.info(info_remit[2] + " solicita transferencia a " + trama[1])  
             #JMOC Verifica si el usuario es valido y esta conectado 
-            if (usuario_valido(trama[1], usuarios)) and (online(trama[1])):          
+            if (usuario_valido(trama[1], usuarios)) and (online(trama[1],ClientesOnline)):          
                 publishData(msg.topic, OK + b'$' + info_remit[2].encode())    #JMOC Se le notifica al cliente que los destinatarios son validos
                 logging.debug("Usuario valido")
                 #JMOC Enviar el mensjae al usuario
@@ -166,7 +164,8 @@ def dist_salas(trama, info_remit, topic):    #JMOC funcion que se encarga de dis
     for i in usuarios:
         for j in i.getrooms():
             if j == trama[1]:
-                #JMOC Se hace una solicitud FRR al usuario de la sala    
+                #JMOC Se hace una solicitud FRR al usuario de la sala si esta conectado
+                if online(i.getuser(), ClientesOnline):   #CFLN pregunta si el usuairo de la sala esta conectado
                 publishData(COMANDOS+"/"+i.getuser(), FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
                 TCP.transf(i.getuser())  #Inicia la transferencia del archivo 
 
@@ -217,7 +216,7 @@ hiloAlive.start()
 try:
     while True:
         #logging.info("olakease")
-        online(4)
+        print(online("201700728", ClientesOnline))
         time.sleep(5)
         #logging.debug(ClientesOnline)
         #publishData("comandos06/201700728", "JOSE")
