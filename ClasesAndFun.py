@@ -23,7 +23,7 @@ class usuario(object):
         return self.__str__()       #JMOC devuelve el usuario y el nombre de usuario
 
 #JMOC Verifica si una sala es valida
-def sala_valida(salav):
+def sala_valida(salav, usu, list_usuarios):
     f = open(ROOMS, "r")        #JMOC abre el archivo de salas en modo lectura
     lineas = f.readlines()         #JMOC guarda las lineas del archivo de usuarios
     f.close()                       #JMOC cierra el archivo
@@ -32,7 +32,16 @@ def sala_valida(salav):
         i=i.replace('\n','')          #JMOC Elimina los caracteres de salto de las lineas
         if salav == i:
             valid_room = True       #JMOC La sala es valida porque se encuentra en el archvio salas
-    return valid_room
+    
+    valid_room2 = False
+    #JMOC Se verifica si el usuario pertenece a la sala a la cual quiere efectural la transferencia
+    for i in list_usuarios:
+        if usu == i.getuser():
+            for j in i.getrooms():
+                if salav == j:
+                    valid_room2 = True   #el usuario pertenece a la sala
+    
+    return (valid_room and valid_room2)   #JMOC si la sala es valida y el usuario pertenece a ella se efectua la transferencia 
 
 #JMOC Verifica si un usuario es valido 
 def usuario_valido(usu,ava_usuarios):

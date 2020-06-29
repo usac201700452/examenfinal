@@ -43,7 +43,7 @@ def on_message(client, userdata, msg):
         if len(trama[1]) == 5 and remite_valido(info_remit[2],usuarios):
             logging.info(info_remit[2] + " solicita transferencia a una sala " + trama[1])         
             #JMOC pregunta si la sala es valida (si se encuentra en el archivo salas) y si esta vacia    
-            if sala_valida(trama[1]) and sala_vacia(trama[1],info_remit[2],usuarios, ClientesOnline):        
+            if sala_valida(trama[1], info_remit[2], usuarios) and sala_vacia(trama[1],info_remit[2],usuarios, ClientesOnline):        
                 publishData(msg.topic, OK + b'$' + info_remit[2].encode())    #JMOC Se le notifica al cliente que los destinatarios son validos
                 logging.debug("Sala valida")            #INICIA LA RECEPCION
                 #JMOC Distribucion de mensaje utilizando un hilo
