@@ -60,7 +60,7 @@ def on_message(client, userdata, msg):
                 logging.debug("Sala no valida")              
         #JMOC Pregunta si el destinatario es un usuario y es un usuario valido
         #if (len(trama[1]) == 9) and (remite_valido(info_remit[2],usuarios)) and (mult_usua == []) :
-        if (len(trama[1]) == 9) and (remite_valido(info_remit[2],usuarios))) :  
+        if (len(trama[1]) == 9) and (remite_valido(info_remit[2],usuarios)) :  
             logging.info(info_remit[2] + " solicita transferencia a " + trama[1])  
             #JMOC Verifica si el usuario es valido y esta conectado 
             if (usuario_valido(trama[1], usuarios)) and (online(trama[1],ClientesOnline)):          
