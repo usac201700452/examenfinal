@@ -193,20 +193,18 @@ def dist_usu(trama ,info_remit, topic):    #JMOC funcion que se encarga de distr
 def is_alive():
     while True:
         global ClientesOnline
-        time.sleep(ALIVE_PERIOD)
-        for i in range(len(ClientesOnline)):   #CFLN este ciclo suma al contador de usuarios, para determinar si estan desconectados
-            ClientesOnline[i][1]+=1
-        
+        time.sleep(ALIVE_PERIOD)        
         l=len(ClientesOnline)-1
         i=0
         while i<=l and (len(ClientesOnline)!=0):  #CFLN cilco para eliminar a los usuarios que no estan conectados
-            if ClientesOnline[i][1]==3: 
+            if ClientesOnline[i][1]==3:              
                 logging.info(ClientesOnline[i][0]+" se ha desconectado")      
                 del ClientesOnline[i]    #CFLN Si el contador del usuario es igual a 3, este se elimina de la lista de usuarios conectados
                 l=len(ClientesOnline)-1
                 i-=1
             i+=1
-        
+        for i in range(len(ClientesOnline)):   #CFLN este ciclo suma al contador de usuarios, para determinar si estan desconectados
+            ClientesOnline[i][1]+=1
 
 #CFLN Hilo para correr el metodo isAlive sin afectar el hilo principal        
 hiloAlive = threading.Thread(target=is_alive, daemon = True)
