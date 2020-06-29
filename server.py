@@ -17,7 +17,7 @@ logging.basicConfig(
 
 TCP = tcp_server()           #JMOC Crea un objeto para el manejo de la recepcion y transmision de archivos de audio
 
-listaClientes = []            #CFLN Lista de todos los clientes que envian msg
+ClientesOnline = []            #CFLN Lista de todos los clientes que envian msg
 listaClientes2 = []         #CFLN Lista de clientes activos no repetidos     
 contAlives = 0
 
@@ -29,7 +29,7 @@ def on_connect(client, userdata, rc):
 #JMOC Callback que se ejecuta cuando llega un mensaje al topic suscrito
 def on_message(client, userdata, msg):
     
-    logging.debug(str(msg.topic) + "     " + str(msg.payload)) 
+    #logging.debug(str(msg.topic) + "     " + str(msg.payload)) 
 
     trama = str(msg.payload).split('$')       #JMOC Guarda la informacion de la trama
     info_remit = str(msg.topic).split('/')       #JMOC Guarda la información del remitente
@@ -44,18 +44,6 @@ def on_message(client, userdata, msg):
     if len(trama) > 3:
         for i in range(1,len(trama)-1):
             mult_usua.append(trama[i])         #JMOC si una trama contiene varios usuarios, estos se guardan el la lista mult_usua
-
-
-    #logging.debug("USUARIO : "+str(trama[1]))   #CFLN Indica de que usuario viene la trama
-    #listaClientes.append(trama[1])                #CFLN Agregar clientes activos a la lista    
-
-    #CFLN Filtro para eliminar duplicados en lista
-    for i in listaClientes:                       
-        if i not in listaClientes2:
-            listaClientes2.append(i)
-
-                
-    logging.debug(listaClientes2)
 
     if trama[0] == str(FTR):                 #JMOC Se necesita una transferencia de archivos)
         #JMOC El destinatario es una sala y el remitente es valido
@@ -116,12 +104,17 @@ def on_message(client, userdata, msg):
                 publishData(msg.topic, NO + b'$' + info_remit[2].encode())
                 logging.debug("Usuarios no validos o no hay ninguno conectado")
 
-    elif trama[0]==ALIVE:           #CFLN Si se recibe el ALIVE
-        for i in listaClientes:     #CFLN se agregan los clientes activos si no se han agregado
-            if i not in listaClientes2:
-                listaClientes2.append(i)
-        client.publishData(msg.topic,(ACK+trama[1]).encode())   #CFLN Se manda la respuesta ACK
-                      
+    elif trama[0]==str(ALIVE):           #CFLN Si se recibe el ALIVE
+        global ClientesOnline
+        publishData(msg.topic, ACK + b'$' + trama[1].encode())   #CFLN Se manda la respuesta ACK
+        NuevoUsu = True
+        for i in range(len(ClientesOnline)):          #CFLN Se verifica si el usuario es un usuario nuevo, de lo contraio
+            if trama[1] in ClientesOnline[i]:         #se modifica el valor de su contador  ClientesOnline[i][1] para indicar que esta conectado
+                ClientesOnline[i]=[trama[1],0]
+                NuevoUsu = False
+        if NuevoUsu:                                  #CFLN Si el usuario es nuevo se agrega a la lista de usuarios conectados  
+            ClientesOnline.append([trama[1],0])
+            logging.info(trama[1]+" se ha conectado")                              
     
 #JMOC Handler cuando se publique satisfactoriamente en el broker MQTT
 def on_publish(client, userdata, mid): 
@@ -197,28 +190,36 @@ def dist_usu(trama ,info_remit, topic):    #JMOC funcion que se encarga de distr
     publishData(COMANDOS+"/"+trama[1], FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
     TCP.transf(trama[1])  #Inicia la transferencia del archivo       
 
-#CFLN Metodo que se encarga de limpiar la lista de clientes
+#CFLN def que se encarga de limpiar la lista de clientes
 # que no estan enviando su comando ALIVE
-def isAlive():
-    contAlives=0
+def is_alive():
     while True:
-        time.sleep(ALIVE_PERIOD)        
-        if contAlives>3:
-            contAlives=0
-            listaClientes.clear()
-            listaClientes2.clear()
-        else:
-            contAlives+=1
+        global ClientesOnline
+        time.sleep(ALIVE_PERIOD)
+        for i in range(len(ClientesOnline)):   #CFLN este ciclo suma al contador de usuarios, para determinar si estan desconectados
+            ClientesOnline[i][1]+=1
+        
+        l=len(ClientesOnline)-1
+        i=0
+        while i<=l and (len(ClientesOnline)!=0):  #CFLN cilco para eliminar a los usuarios que no estan conectados
+            if ClientesOnline[i][1]==3: 
+                logging.info(ClientesOnline[i][0]+" se ha desconectado")      
+                del ClientesOnline[i]    #CFLN Si el contador del usuario es igual a 3, este se elimina de la lista de usuarios conectados
+                l=len(ClientesOnline)-1
+                i-=1
+            i+=1
+        
 
 #CFLN Hilo para correr el metodo isAlive sin afectar el hilo principal        
-hiloAlive = threading.Thread(target=isAlive, daemon = True)
+hiloAlive = threading.Thread(target=is_alive, daemon = True)
 hiloAlive.start()
 
 try:
     while True:
         #logging.info("olakease")
-        time.sleep(10)
-        logging.debug(listaClientes2)
+        online(4)
+        time.sleep(5)
+        #logging.debug(ClientesOnline)
         #publishData("comandos06/201700728", "JOSE")
 
 

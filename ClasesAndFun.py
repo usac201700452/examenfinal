@@ -75,6 +75,7 @@ def remite_valido(remit, valid_remit):
 #JMOC Verifica si un usuario esta en linea
 def online(usu_on):
     li=True
+    print(ClientesOnline)
     #for i in usus_on:
         #if usu_on == i[0]
         #li=True
