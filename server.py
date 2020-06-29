@@ -181,8 +181,10 @@ logging.info("Servidor iniciado")
 
 try:
     while True:
+        print('\n')
         logging.info("Usuarios conectados:")
         logging.info(ClientesOnline)
+        print('\n')
         time.sleep(20)
 except KeyboardInterrupt:
     logging.warning("Desconectando del broker...")
