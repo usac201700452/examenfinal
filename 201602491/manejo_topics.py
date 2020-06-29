@@ -11,7 +11,7 @@ logging.basicConfig(
 
 #JMOC Esta función será lanzada en un hilo para repodrucir el audio
 def reproducir(nome):
-    os.system('aplay ' + nome) #JMOC Reproducir mensaje
+    os.system('aplay ' + nome + '.wav') #JMOC Reproducir mensaje
 
 class topic(object):
     def __init__(self):
@@ -19,10 +19,9 @@ class topic(object):
 
     
 
- 
     def rep_audio(self, remit, nom):        #JMOC Metodo para reproducir mensajes
         self.remit = remit
-        self.nom = nom 
+        self.nom = str(nom) 
         logging.info(self.remit+" envio un audio")
 
         audio = None                       #JMOC Elimina el hilo anterior
@@ -34,8 +33,6 @@ class topic(object):
                         )
         audio.start()     #JMOC hilo para reproducir audio
 
-
-        os.system('aplay ' + self.nom + '.wav') #JMOC Reproducir mensaje
 
     def chat(self, inf_tipo, inf_remit, mensg):   #JMOC Se encarga de la lectura de mensajes
         self.inf_tipo = inf_tipo
