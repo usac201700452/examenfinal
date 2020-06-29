@@ -5,24 +5,26 @@ from TCPserverData import *
 from globals import AUDIO_FILE
 
 logging.basicConfig(
-    level = logging.DEBUG, 
+    level = logging.INFO, 
     format = '[%(levelname)s] (%(threadName)-10s) %(message)s'
     )
-#CFLN Configuracion inicial del socker tcp  
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((SERVER_ADDR, SERVER_PORT))
-server_socket.listen(10) #CFLN 1 conexion activa y 9 en cola
 
 #CFLN Clase para manejo de servidor TCP
 class tcp_server(object):
 
-    def __init__(self):
-        pass        
+    def __init__(self, server_address, server_port):
+        self.server_address = server_address
+        self.server_port = server_port         
+
+        #CFLN Configuracion inicial del socker tcp  
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.server_address, self.server_port))
+        self.server_socket.listen(10) #CFLN 1 conexion activa y 9 en cola
     
     #CFLN Metodo para recibir archivos utilizando su peso
     def receive(self, peso):    
         logging.debug("Esperando Conexion remota para iniciar la recepcion")
-        conn, addr = server_socket.accept()
+        conn, addr = self.server_socket.accept()
         try:
             self.peso = int(peso)                   #CFLN Se convierte el peso a entero
             peso_actual=b''                         #CFLN Variable de control para saber si ya se han recibido todos los datos
@@ -43,7 +45,7 @@ class tcp_server(object):
         self.dest = dest                #CFLN Destinatario del archivo
         try:
             logging.debug("Esperando Conexion remota para iniciar la transmision")
-            conn, addr = server_socket.accept()
+            conn, addr = self.server_socket.accept()
             with open(AUDIO_FILE, 'rb') as f:       #CFLN Se abre el archivo a enviar en BINARIO
                 conn.sendfile(f, 0)                 #CFLN Se envia por el socket el archivo completo
                 f.close()                           #CFLN No es necesario controlar el tamaño del archivo enviado ya que esto se realiza en la recepcion
