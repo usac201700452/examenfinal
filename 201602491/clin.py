@@ -7,13 +7,11 @@ import socket
 from brokerData import *
 from manejo_topics import *
 from Encrypt import *
+from globy import *
 
 CRYPTO_ON = True #EDVC Esta variable indica si utilizaremos la encriptacion para enviar un mensaje
 
-SERVER_ADD = '167.71.243.238' #EDVC Datos para la conexion TCP 
-SERVER_PORT = 9806
-BUFFER_SIZE = 64 * 1024
-FILE_SIZE_E = 0
+
 
 reconocido_alive=False  #EDVC Aqui tenemos todas nuestras variables globales a utilizar
 reconocido_audio=False
