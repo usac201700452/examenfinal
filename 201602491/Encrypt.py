@@ -64,4 +64,4 @@ class EncriptarMensaje(object):
         desencriptado = AES.new(key, AES.MODE_CFB, iv).decrypt(mensaje_enc[SALT_SIZE:])
 
         return desencriptado
-        #El mensaje encriptado se devuelve en string binario
+        #CFLN El mensaje encriptado se devuelve en string binario
