@@ -115,7 +115,7 @@ def on_message(client, userdata, msg):
                 f.close() #NOTA
                  
                 logging.info("Salio del ciclo")
-                        
+                         
             finally:
                 logging.info("Archivo recibido")
                 logging.info(operacion[1])
