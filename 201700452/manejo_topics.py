@@ -6,7 +6,7 @@ AUDIO_RECIBIDO = 'recibido.wav'
 
 logging.basicConfig(
     level = logging.INFO, 
-    format = '%(message)s'
+    format = '[%(levelname)s] (%(threadName)-10s) %(message)s'
     )
 
 #JMOC Esta función será lanzada en un hilo para repodrucir el audio
