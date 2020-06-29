@@ -26,7 +26,7 @@ def on_connect(client, userdata, rc):
 
 #JMOC Callback que se ejecuta cuando llega un mensaje al topic suscrito
 def on_message(client, userdata, msg):
-    
+    global ClientesOnline
     #logging.debug(str(msg.topic) + "     " + str(msg.payload)) 
 
     trama = str(msg.payload).split('$')       #JMOC Guarda la informacion de la trama
@@ -103,7 +103,6 @@ def on_message(client, userdata, msg):
                 logging.debug("Usuarios no validos o no hay ninguno conectado")
 
     elif trama[0]==str(ALIVE):           #CFLN Si se recibe el ALIVE
-        global ClientesOnline
         publishData(msg.topic, ACK + b'$' + trama[1].encode())   #CFLN Se manda la respuesta ACK
         NuevoUsu = True
         for i in range(len(ClientesOnline)):          #CFLN Se verifica si el usuario es un usuario nuevo, de lo contraio
@@ -166,8 +165,8 @@ def dist_salas(trama, info_remit, topic):    #JMOC funcion que se encarga de dis
             if j == trama[1]:
                 #JMOC Se hace una solicitud FRR al usuario de la sala si esta conectado
                 if online(i.getuser(), ClientesOnline):   #CFLN pregunta si el usuairo de la sala esta conectado
-                publishData(COMANDOS+"/"+i.getuser(), FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
-                TCP.transf(i.getuser())  #Inicia la transferencia del archivo 
+                    publishData(COMANDOS+"/"+i.getuser(), FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
+                    TCP.transf(i.getuser())  #Inicia la transferencia del archivo 
 
 #JMOC definicion para distribucion de mensajes a multiples ususarios
 def dist_usus(mult_usua, trama ,info_remit, topic):    #JMOC funcion que se encarga de distribuir los mensajes a las salas
@@ -216,7 +215,7 @@ hiloAlive.start()
 try:
     while True:
         #logging.info("olakease")
-        print(online("201700728", ClientesOnline))
+        #print(online("201700728", ClientesOnline))
         time.sleep(5)
         #logging.debug(ClientesOnline)
         #publishData("comandos06/201700728", "JOSE")

@@ -65,7 +65,7 @@ def sala_vacia(nosala,user_origen,salas_usus, lista_online):
     for i in salas_usus:
         for j in i.getrooms():
             if (i.getuser() != user_origen) and j == nosala:     
-                if online(usu_on, lista_online):
+                if online(i.getuser(), lista_online):
                     sa_state = True                                      #preguntar si esta en linea
     return  sa_state
 
