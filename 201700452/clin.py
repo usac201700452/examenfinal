@@ -109,7 +109,6 @@ def on_message(client, userdata, msg): #EDVC esta funcion se activara siempre qu
                          
             finally:
                 logging.info("Archivo recibido")
-                logging.info(operacion[1])
                 sock.close()                            #EDVC Se cierra el socket y luego reproducimos el audio
                 reciv.rep_audio(remit=operacion[1],nom=nombre_audio)
                 if not inicio_proceso: #EDVC si el usuario no ha iniciado algun proceso le volvemos a mostrar el menu
