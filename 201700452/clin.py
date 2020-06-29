@@ -8,13 +8,16 @@ from brokerData import *
 from manejo_topics import *
 from Encrypt import *
 
-CRYPTO_ON = True
+CRYPTO_ON = True 
 
 SERVER_ADD = '167.71.243.238'
 SERVER_PORT = 9806
 BUFFER_SIZE = 64 * 1024
 FILE_SIZE_E = 0
 
+reconocido_alive=False
+reconocido_audio=False
+wavy_encrip='/encripe'
 inicio_proceso=False
 oki=False
 conti=True
@@ -59,7 +62,6 @@ def mostrar_menu():
 def on_connect(client, userdata, rc):   #CFLN De esta linea a la 45 declaramos las definiciones basicas para mqtt
     logging.info("Conectado al broker")
 
-
 def on_publish(client, userdata, mid): 
     publishText = "Publicacion satisfactoria"
     logging.debug(publishText)
@@ -68,18 +70,25 @@ def on_publish(client, userdata, mid):
 def on_message(client, userdata, msg):
     global comand
     global oki
+    global reconocido_alive
+    global reconocido_audio
     #comand=msg.payload.decode()
     operacion=str(msg.payload).split('$')
     operacion[0]+="'"
     operacion[-1]=operacion[-1].replace("'",'')
-    logging.info("Valor de operacion: ")
-    logging.info(operacion)
+    #logging.info("Valor de operacion: ")
+    #logging.info(operacion)
     info = msg.topic.split('/')   #JMOC obtiene la informacion del topic
+    
     #JMOC info[0] = indica si es un audio o un text
     #JMOC info[1] =  indica el subtopic del numero de grupo
     #JMOC info[2] =  indica el nombre del sub topic (sala/usuario)
-       
-    if info[0] == "comandos" and info[1]=="06" and info[2]==usu:
+    #if len(msg.topic)==11:
+    if info[0] == "comandos" and info[1]=="06" and len(info)==2:
+        if (operacion[0]==str(ACK) and usu in operacion):
+            reconocido_alive=True  
+    elif info[0] == "comandos" and info[1]=="06" and info[2]==usu:
+        
         logging.info("**************")
         print(operacion)
         print(str(OK))
@@ -92,34 +101,39 @@ def on_message(client, userdata, msg):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((SERVER_ADD, SERVER_PORT))
             try:
-                with open('recibido.wav','wb') as f:
+                nombre_audio=str(time.time())
+                with open(nombre_audio+'.wav','wb') as f:
                     peso_actual=b'' 
                     peso=int(operacion[2])
                     while len(peso_actual)<peso:
                         l = sock.recv(64*1024)
                         peso_actual+=l
-                    f.write(peso_actual)
-                    #f.close()
-                
+                    if CRYPTO_ON:
+                        f.write(encri.desencriptar(peso_actual))
+                    else:
+                        f.write(peso_actual)
+                f.close() #NOTA
+                 
                 logging.info("Salio del ciclo")
-                        
+                         
             finally:
                 logging.info("Archivo recibido")
                 logging.info(operacion[1])
                 sock.close() #Se cierra el socket
-                reciv.rep_audio(remit=operacion[1])
+                reciv.rep_audio(remit=operacion[1],nom=nombre_audio)
                 if not inicio_proceso:
-                    mostrar_menu()
+                    mostrar_menu()   
                 #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
                 
         elif (operacion[0]==str(NO) and usu in operacion):
             oki=False
         elif (operacion[0]==str(ACK) and usu in operacion):
-            reconocido=True     
-
+            reconocido_audio=True
+            logging.info("El audio se envio")
+        
     elif info[0] == "usuarios" or info[0] == "salas":
         if CRYPTO_ON:
-            logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))              #Llama el metodo para mostrar mensaje
+            logging.info(reciv.chat(info[0], info[2] ,encri.desencriptar(msg.payload)))        #Llama el metodo para mostrar mensaje
         else:
             logging.info(reciv.chat(info[0], info[2] ,msg.payload)) 
         if not inicio_proceso:
@@ -132,7 +146,7 @@ def comunicacionCS(usuario='',sala='',size=''):
     logging.info("Si entro")
     logging.info(sala)
     logging.info(usuario)
-    if(sala!=''):
+    if(sala!=''): 
         while True: 
             publishData(comando+'/'+usu,'\x03$'+sala+'$'+size)
             time.sleep(1)
@@ -143,13 +157,19 @@ def comunicacionCS(usuario='',sala='',size=''):
                 sock.connect((SERVER_ADD, SERVER_PORT))
                 #print("\nEsperando conexion remota...\n")
                 #conn, addr = sock.accept()
-                with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    sock.sendfile(f, 0)
+                if CRYPTO_ON:
+                    with open('encripe', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
                     f.close()
-                sock.close()
+                    sock.close()
+                else:
+                    with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
+                    f.close()
+                    sock.close()
                 break
             else:
-                logging.info("El servidor envio un NO, no se enviara el archivo")
+                logging.error("El servidor envio un NO, no se enviara el archivo")
                 break
     if(usuario!=''):
         while True:
@@ -160,32 +180,55 @@ def comunicacionCS(usuario='',sala='',size=''):
                 
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((SERVER_ADD, SERVER_PORT))
-               
-                
-                with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
-                    sock.sendfile(f, 0)
+                if CRYPTO_ON:
+                    with open('encripe', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
                     f.close()
-                sock.close()
+                    sock.close()
+                else:
+                    with open('subprocess1.wav', 'rb') as f: #Se abre el archivo a enviar en BINARIO
+                        sock.sendfile(f, 0)
+                    f.close()
+                    sock.close()
                 break
             else:
                 logging.info("El servidor envio un NO, no se enviara el archivo")
                 break
 
 
-'''
-def alive():
-    while(True):
-        publishData(comando,'\x04$'+usu)
-        if reconocido:
-           time.sleep(2)
-        else
-            time.sleep(0.2)
-publishData(comando,'\x04$'+usu)
 
-alive_threadd = threading.Thread(target=alive, daemon=True)
-alive_threadd.start()
-'''
-print("Bienvenido! " + str(content[0]))     #CFLN Damos la bienvenida al usuario
+def alive():
+    cont=0
+    tiempo=0
+    while(True):
+        #logging.info("cada 2 seg")
+        #logging.info(cont)
+        global reconocido_alive
+
+        publishData(comando,'\x04$'+usu)
+        time.sleep(2)
+        if reconocido_alive and cont <=3:
+           reconocido_alive=False  
+           cont=0
+        else:
+            cont=cont+1
+        while cont>3:
+            logging.info("El servidor no contesto, enviando cada 0.1")
+            logging.info(tiempo)
+            publishData(comando,'\x04$'+usu)
+            time.sleep(0.1)
+            if reconocido_alive:
+                cont=0
+                tiempo=0
+                break
+            elif tiempo==200:
+                 logging.critical("El servidor no contesto, saliendo")
+                 os._exit(0)
+            else:
+                tiempo=tiempo+1
+            
+                
+               
 
 accep=True #CFLN dejamos que accep sea verdadero si content encontro al usuario y asi poder correr la aplicación
 
@@ -214,6 +257,17 @@ for i in salas_usuario:#EDVC Dependiendo de las salas que tenga el usuario
 client.subscribe(usuario_topics) #EDVC Se suscribe a los topics del usuario
 
 client.loop_start()
+
+
+publishData(comando,'\x04$'+usu)
+
+alive_threadd = threading.Thread(target=alive, daemon=True)
+alive_threadd.start()
+
+print("Bienvenido! " + str(content[0]))     #CFLN Damos la bienvenida al usuario
+
+
+
 while accep: #EDVC Iniciamos el menu
     try:
         while True:
@@ -231,7 +285,15 @@ while accep: #EDVC Iniciamos el menu
                 if(dura<=30.0): #EDVC si la duracion es menor permitimos que grabe
                     argu='arecord -d ' + str(dura) + ' -f U8 -r 8000 '+ AUDIO
                     os.system(argu)
-                    size = str(os.path.getsize(direccion+wavy))            
+                    if CRYPTO_ON:
+                        t=open('encripe', 'wb')
+                        f=open('subprocess1.wav', 'rb')
+                        t.write(encri.encriptar(f.read()))
+                        f.close()
+                        t.close()
+                        size = str(os.path.getsize(direccion+wavy_encrip)) 
+                    else: 
+                        size = str(os.path.getsize(direccion+wavy))            
                     logging.info("\n Este audio es para una sala o alguien? 1=Sala 2=Alguien") #EDVC Una vez grabado el audio le pedimos al usuario que indique a quien es
                     elec=int(input())
                     if(elec==1):
