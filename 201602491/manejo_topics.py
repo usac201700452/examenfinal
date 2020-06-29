@@ -23,7 +23,7 @@ class topic(object):
         self.remit = remit
         self.nom = nom 
         logging.info(self.remit+" envio un audio")
-        os.system('aplay ' + self.nom) #JMOC Reproducir mensaje
+        os.system('aplay ' + self.nom + '.wav') #JMOC Reproducir mensaje
 
     def chat(self, inf_tipo, inf_remit, mensg):   #JMOC Se encarga de la lectura de mensajes
         self.inf_tipo = inf_tipo
