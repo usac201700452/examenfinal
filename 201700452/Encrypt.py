@@ -4,6 +4,8 @@ import os
 from Crypto.Cipher import AES
 
 #CFLN Manejo de encriptado/desencriptado por medio de una clase
+#CFLN la encriptacion es aleatoria cada vez, de este modo se tiene un mensaje
+#cifrado diferente aunque el mensaje original sea el mismo
 class EncriptarMensaje(object):
     
     def __init__(self):
