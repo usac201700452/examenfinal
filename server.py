@@ -38,11 +38,6 @@ def on_message(client, userdata, msg):
     trama[0] += "'"
     trama[-1] = trama[-1].replace("'",'')       #JMOC elimina el caracter ' que sobra al final 
     
-    mult_usua = []                                                         
-    """if len(trama) > 3:
-        for i in range(1,len(trama)-1):
-            mult_usua.append(trama[i])         #JMOC si una trama contiene varios usuarios, estos se guardan el la lista mult_usua
-    """
     if trama[0] == str(FTR):                 #JMOC Se necesita una transferencia de archivos)
         #JMOC El destinatario es una sala y el remitente es valido
         if len(trama[1]) == 5 and remite_valido(info_remit[2],usuarios):
@@ -84,24 +79,6 @@ def on_message(client, userdata, msg):
             else:
                 publishData(msg.topic, NO + b'$' + info_remit[2].encode())   #JMOC Usuario no valido
                 logging.debug("Usuario no valido")
-
-        """if (mult_usua != []) and (remite_valido(info_remit[2],usuarios)):         #Si se decea enviar un archivo a varios usuarios
-            logging.info(info_remit[2] + " solicita transferencia a multiples usuarios")
-            if usuarios_validos(info_remit[2],mult_usua,usuarios):    #Pregunta si los usuarios son validos y si alguno esta conectado
-                logging.debug("Usuarios validos")
-                publishData(msg.topic, OK + b'$' + info_remit[2].encode())    #JMOC Se le notifica al cliente que los destinatarios son validos
-                #JMOC Distribucion de mensajes utilizando un hilo
-                h_dist_usus = None
-                #JMOC Hilo que se encargara de distribuir los mensajes a todos los usuarios             
-                h_dist_usus = threading.Thread(name = 'Distribucion de mensajes a multiples usuarios',   
-                        target = dist_usus,
-                        args = (mult_usua, trama, info_remit, msg.topic,),
-                        daemon = True
-                        )
-                h_dist_usus.start()    #JMOC Inicia el hilo que se encargara de distribuir los mensajes a cada usuario
-            else:
-                publishData(msg.topic, NO + b'$' + info_remit[2].encode())
-                logging.debug("Usuarios no validos o no hay ninguno conectado")"""
 
     elif trama[0]==str(ALIVE):           #CFLN Si se recibe el ALIVE
         publishData(msg.topic, ACK + b'$' + trama[1].encode())   #CFLN Se manda la respuesta ACK
@@ -169,17 +146,6 @@ def dist_salas(trama, info_remit, topic):    #JMOC funcion que se encarga de dis
                     publishData(COMANDOS+"/"+i.getuser(), FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())
                     TCP.transf(i.getuser())  #Inicia la transferencia del archivo 
 
-#JMOC definicion para distribucion de mensajes a multiples ususarios
-"""def dist_usus(mult_usua, trama ,info_remit, topic):    #JMOC funcion que se encarga de distribuir los mensajes a las salas
-    TCP.receive(trama[-1])
-    publishData(topic, ACK + b'$' + info_remit[2].encode())    #JMOC Se le notifica al cliente que el archivo ha sido recibido en el servidor
-    #JMOC Inicia la distribucion de mensajes
-    for i in mult_usua:
-        if online(i):
-            #JMOC se le envia una solicitud de tranferencia a los destinatarios
-            publishData(COMANDOS+"/"+i, FRR+b'$'+info_remit[2].encode()+b'$'+trama[-1].encode())  
-            TCP.transf(i)  #Inicia la transferencia del archivo   
-"""
 #JMOC definicion para distribucion de mensaje a un ususario
 def dist_usu(trama ,info_remit, topic):    #JMOC funcion que se encarga de distribuir los mensajes a las salas
     TCP.receive(trama[-1])
