@@ -22,15 +22,14 @@ class topic(object):
     def rep_audio(self, remit, nomr):        #JMOC Metodo para reproducir mensajes
         self.remit = remit
         logging.info(self.remit+" envio un audio")
-
+        self.nomr=norm
         audio = None                       #JMOC Elimina el hilo anterior
 
         audio = threading.Thread(name = 'audio',       #JMOC Configuracion del hilo
                         target = reproducir,
-                        args = (nomr),
+                        args = (self.nomr,),
                         daemon = True
                         )
-        
         audio.start()     #JMOC hilo para reproducir audio
 
 
