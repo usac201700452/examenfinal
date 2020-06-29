@@ -102,7 +102,7 @@ def on_message(client, userdata, msg):
             sock.connect((SERVER_ADD, SERVER_PORT))
             try:
                nombre_audio=str(time.time())
-                with open(nombre_audio+'.wav'),'wb') as f:
+                with open(nombre_audio+'.wav','wb') as f:
                     peso_actual=b'' 
                     peso=int(operacion[2])
                     while len(peso_actual)<peso:
