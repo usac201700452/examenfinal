@@ -101,8 +101,8 @@ def on_message(client, userdata, msg):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((SERVER_ADD, SERVER_PORT))
             try:
-               
-                with open(str(time.time()),'wb') as f:
+               nombre_audio=str(time.time())
+                with open(nombre_audio+'.wav'),'wb') as f:
                     peso_actual=b'' 
                     peso=int(operacion[2])
                     while len(peso_actual)<peso:
@@ -120,7 +120,7 @@ def on_message(client, userdata, msg):
                 logging.info("Archivo recibido")
                 logging.info(operacion[1])
                 sock.close() #Se cierra el socket
-                reciv.rep_audio(remit=operacion[1])
+                reciv.rep_audio(remit=operacion[1],nom=nombre_audio)
                 if not inicio_proceso:
                     mostrar_menu()   
                 #os.system('aplay recibido.wav') #JMOC Reproducir mensaje
