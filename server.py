@@ -177,14 +177,11 @@ def is_alive():
 hiloAlive = threading.Thread(target=is_alive, daemon = True)
 hiloAlive.start()
 
+logging.info("Servidor iniciado") 
+
 try:
     while True:
-        #logging.info("olakease")
-        #print(online("201700728", ClientesOnline))
-        time.sleep(5)
-        #logging.debug(ClientesOnline)
-        #publishData("comandos06/201700728", "JOSE")
-
+        pass
 
 except KeyboardInterrupt:
     logging.warning("Desconectando del broker...")
